@@ -7,12 +7,10 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 	<flow name="interface-rest-api" doc:id="5b53ca25-f78d-4a88-9ff2-84fb89010c45" >
 		<http:listener doc:name="/rest/*" doc:id="37106137-694a-476d-9618-b15e76be0831" config-ref="Global_HTTP_Listener_config" path="/rest/*"/>
-		<logger level="INFO" doc:name="Log Attributes" doc:id="0141f721-e9c4-4ac5-9831-a5dc7227a698" message="#[attributes]" />
 		<apikit:router doc:name="APIkit REST Router" doc:id="151c9da6-adb2-4ff5-89b7-98bba2f96d66" config-ref="REST_API_Router"/>
 	</flow>
 	<flow name="interface-components-api" doc:id="19ca8955-bd1b-4257-9028-03bc80b70682" >
 		<http:listener doc:name="/components/*" doc:id="24507104-43c3-42fd-823c-a5bdd1a9c52e" config-ref="Global_HTTP_Listener_config" path="/components/*"/>
-		<logger level="INFO" doc:name="Log Attributes" doc:id="7c2544f0-6f6c-44c6-bac5-1c3b80846850" message="#[attributes]"/>
 		<apikit:router doc:name="APIkit Components Router" doc:id="da6c6a44-7ce9-4410-bf16-c90d33eb41e3" config-ref="Components_API_Router"/>
 	</flow>
 </mule>
