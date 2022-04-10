@@ -38,4 +38,25 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
+	<flow name="account-list-flow" doc:id="fe93c272-9606-4c59-a6a0-fc076a844f85" >
+		<set-variable value="#[attributes.queryParams.query]" doc:name="Query" doc:id="7070a917-a13a-4539-9f94-3833960bd9a0" variableName="query"/>
+		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="0e30c2c3-2408-44d6-a3b9-8830e6720e1b" name="authentication-rest-flow" target="sfdc_token" targetValue="#[payload.access_token]"/>
+		<http:request method="GET" doc:name="Request Query SF" doc:id="fa792e20-c962-40a3-9f7f-514050302944" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v51.0/query" >
+			<http:body ><![CDATA[#[{}]]]></http:body>
+			<http:headers ><![CDATA[#[{
+	Authorization: "Bearer " ++ vars.sfdc_token
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[{
+	q: vars.query
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Response" doc:id="fe720fba-094b-430a-8a93-908d3f1e7874" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.records map ($ - "attributes")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
