@@ -38,6 +38,76 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
+	<flow name="account-batch-insert-flow" doc:id="c69d82f9-bd98-4e7e-b2e3-a8d0a3f08455" >
+		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="6647838f-4653-44c8-9c31-28773f12bca0" name="authentication-rest-flow" target="sfdc_token" targetValue='#[payload."access_token"]'/>
+		<ee:transform doc:name="Build Body" doc:id="d79ec0fe-8066-4edb-9ba0-8993e5984c81" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  operation : "insert",
+  object : "Account",
+  contentType: "CSV",
+  lineEnding: "CRLF"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Create Job" doc:id="3297dcbb-50de-4ca6-af24-0dad40032e75" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v51.0/jobs/ingest" target="job_id" targetValue="#[payload.id]" >
+			<http:headers ><![CDATA[#[{
+	Authorization: "Bearer " ++ vars.sfdc_token as String
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Build Body" doc:id="6c503db0-2762-48ed-9c7f-6e6627b444f0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/csv lineSeparator="\r\n"
+---
+vars.requestPayload map (
+	{
+		name: $.nome
+	}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PUT" doc:name="Upload Data" doc:id="ebcfb386-2de5-4f00-846e-2fb6128f1f71" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v51.0/jobs/ingest/{JobId}/batches" >
+			<http:headers ><![CDATA[#[{
+	"Authorization": "Bearer " ++ vars."sfdc_token" as String,
+	"Content-type": "text/csv"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"JobId": vars."job_id"
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Build Body" doc:id="220054ea-4f5c-49fc-a71d-a8e97b17fc56" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   state : "UploadComplete"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Complete Upload" doc:id="4c2970c3-f2ad-4204-986b-d84c02360fa6" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v51.0/jobs/ingest/{JobId}">
+			<http:headers ><![CDATA[#[{
+	"Authorization": "Bearer " ++ vars."sfdc_token" as String
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"JobId": vars."job_id"
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Response" doc:id="e795313e-88dd-4d5f-a7ee-08625c8febf1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": "Batch completed."
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 	<flow name="account-list-flow" doc:id="fe93c272-9606-4c59-a6a0-fc076a844f85" >
 		<set-variable value="#[attributes.queryParams.query]" doc:name="Query" doc:id="7070a917-a13a-4539-9f94-3833960bd9a0" variableName="query"/>
 		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="0e30c2c3-2408-44d6-a3b9-8830e6720e1b" name="authentication-rest-flow" target="sfdc_token" targetValue="#[payload.access_token]"/>

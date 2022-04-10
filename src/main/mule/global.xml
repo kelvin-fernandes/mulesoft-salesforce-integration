@@ -14,6 +14,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 			<apikit:flow-mapping resource="/token/soap" action="get" flow-ref="authentication-soap-flow" />
 			<apikit:flow-mapping resource="/account" action="post" flow-ref="account-insert-flow" />
 			<apikit:flow-mapping resource="/account" action="get" flow-ref="account-list-flow" />
+			<apikit:flow-mapping resource="/account/batch" action="post" content-type="application/json" flow-ref="account-batch-insert-flow" />
 		</apikit:flow-mappings>
 	</apikit:config>
 	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="e3940dad-747e-4eac-a561-64e1a34bdbbd" name="Components_API_Router" api="api/components-api.raml" />
