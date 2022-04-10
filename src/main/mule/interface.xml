@@ -7,6 +7,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 	<flow name="interface-rest-api" doc:id="5b53ca25-f78d-4a88-9ff2-84fb89010c45" >
 		<http:listener doc:name="/rest/*" doc:id="37106137-694a-476d-9618-b15e76be0831" config-ref="Global_HTTP_Listener_config" path="/rest/*"/>
+		<set-variable value="#[payload]" doc:name="Request Payload" doc:id="b5de71d6-e98a-4f21-b8cb-43eb0675418f" variableName="requestPayload"/>
 		<apikit:router doc:name="APIkit REST Router" doc:id="151c9da6-adb2-4ff5-89b7-98bba2f96d66" config-ref="REST_API_Router"/>
 	</flow>
 	<flow name="interface-components-api" doc:id="19ca8955-bd1b-4257-9028-03bc80b70682" >

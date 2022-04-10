@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="account-insert-flow" doc:id="ac891450-0c97-48d3-ad59-3ad00445f8d6" >
+		<set-variable value="Account" doc:name="Object Name" doc:id="822e5c1f-ee1a-4edd-b3e9-145047d7cceb" variableName="objectName"/>
+		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="b5db5129-fd0f-4d38-a92b-64d24f8441d2" name="authentication-rest-flow" target="sfdc_token" targetValue='#[payload."access_token"]'/>
+		<ee:transform doc:name="Build Body" doc:id="2947fdc5-01f7-4a9d-b3a3-9e99ba935630">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Name": vars.requestPayload.nome,
+	"AccountNumber": vars.requestPayload."numero_conta"
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request Account SF" doc:id="61c41731-bdfe-4108-8af8-ed03350476f5" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v50.0/sobjects/{object_name}">
+			<http:headers ><![CDATA[#[{
+	"Authorization": "Bearer " ++ vars.sfdc_token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"object_name": vars.objectName
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Response" doc:id="86016430-33e4-4383-993a-a9d37653b084" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

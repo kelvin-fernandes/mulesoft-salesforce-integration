@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_c221c8df_6a13_41de_a926_8bf7895d6b1c_Output_Variables_sfdc_token = Any
+

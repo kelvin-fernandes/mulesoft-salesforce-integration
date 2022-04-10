@@ -12,6 +12,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 		<apikit:flow-mappings >
 			<apikit:flow-mapping resource="/token/rest" action="get" flow-ref="authentication-rest-flow" />
 			<apikit:flow-mapping resource="/token/soap" action="get" flow-ref="authentication-soap-flow" />
+			<apikit:flow-mapping resource="/account" action="post" flow-ref="account-insert-flow" />
 		</apikit:flow-mappings>
 	</apikit:config>
 	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="e3940dad-747e-4eac-a561-64e1a34bdbbd" name="Components_API_Router" api="api/components-api.raml" />
@@ -19,5 +20,8 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 	<configuration-properties doc:name="Configuration properties" doc:id="3c6bbcf0-e9af-46b9-9980-fe5f24aa119f" file="${mule.env}.properties" />
 	<http:request-config name="SFDC_Auth_Request_Config" doc:name="HTTP Request configuration" doc:id="120b178e-bccb-419f-85c2-1c502ece5eb9" >
 		<http:request-connection protocol="HTTPS" host="${sfdc.auth.host}" port="443" />
+	</http:request-config>
+	<http:request-config name="SFDC_Endpoint_Request_Config" doc:name="HTTP Request configuration" doc:id="b5ba4836-b44c-4dff-bc7f-813783f5d135" >
+		<http:request-connection protocol="HTTPS" host="${sfdc.endpoint.host}" port="443" />
 	</http:request-config>
 </mule>
