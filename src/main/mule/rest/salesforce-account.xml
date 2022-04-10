@@ -129,4 +129,24 @@ payload.records map ($ - "attributes")]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
+	<flow name="account-by-id-flow" doc:id="4d059807-04dd-46ef-b5ea-b363bb7d5ff2" >
+		<set-variable value="#[attributes.uriParams.id]" doc:name="Account Id" doc:id="4b3f932d-01d5-47b7-ac3c-92268c264fdd" variableName="account_id"/>
+		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="dd2d996d-8175-4aa4-a6d3-68702f9dd12b" name="authentication-rest-flow" target="sfdc_token" targetValue="#[payload.access_token]"/>
+		<http:request method="GET" doc:name="Request Conta APEX" doc:id="00947830-98ba-414e-9c6b-bec15a10a714" config-ref="SFDC_Endpoint_Request_Config" path="/services/apexrest/conta">
+			<http:headers ><![CDATA[#[{
+	Authorization: "Bearer " ++ vars.sfdc_token as String
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[{
+	id: vars.account_id
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Response" doc:id="b0eaf062-faf2-4c56-958a-ecd6cf701424" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0] - "attributes"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
