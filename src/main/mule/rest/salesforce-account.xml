@@ -5,7 +5,7 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="account-insert-flow" doc:id="ac891450-0c97-48d3-ad59-3ad00445f8d6" >
+	<flow name="rest-account-insert-flow" doc:id="ac891450-0c97-48d3-ad59-3ad00445f8d6" >
 		<set-variable value="Account" doc:name="Object Name" doc:id="822e5c1f-ee1a-4edd-b3e9-145047d7cceb" variableName="objectName"/>
 		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="b5db5129-fd0f-4d38-a92b-64d24f8441d2" name="authentication-rest-flow" target="sfdc_token" targetValue='#[payload."access_token"]'/>
 		<ee:transform doc:name="Build Body" doc:id="2947fdc5-01f7-4a9d-b3a3-9e99ba935630">
@@ -38,7 +38,7 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="account-batch-insert-flow" doc:id="c69d82f9-bd98-4e7e-b2e3-a8d0a3f08455" >
+	<flow name="rest-account-batch-insert-flow" doc:id="c69d82f9-bd98-4e7e-b2e3-a8d0a3f08455" >
 		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="6647838f-4653-44c8-9c31-28773f12bca0" name="authentication-rest-flow" target="sfdc_token" targetValue='#[payload."access_token"]'/>
 		<ee:transform doc:name="Build Body" doc:id="d79ec0fe-8066-4edb-9ba0-8993e5984c81" >
 			<ee:message >
@@ -108,7 +108,7 @@ output application/json
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="account-list-flow" doc:id="fe93c272-9606-4c59-a6a0-fc076a844f85" >
+	<flow name="rest-account-list-flow" doc:id="fe93c272-9606-4c59-a6a0-fc076a844f85" >
 		<set-variable value="#[attributes.queryParams.query]" doc:name="Query" doc:id="7070a917-a13a-4539-9f94-3833960bd9a0" variableName="query"/>
 		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="0e30c2c3-2408-44d6-a3b9-8830e6720e1b" name="authentication-rest-flow" target="sfdc_token" targetValue="#[payload.access_token]"/>
 		<http:request method="GET" doc:name="Request Query SF" doc:id="fa792e20-c962-40a3-9f7f-514050302944" config-ref="SFDC_Endpoint_Request_Config" path="/services/data/v51.0/query" >
@@ -129,7 +129,7 @@ payload.records map ($ - "attributes")]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="account-by-id-flow" doc:id="4d059807-04dd-46ef-b5ea-b363bb7d5ff2" >
+	<flow name="rest-account-by-id-flow" doc:id="4d059807-04dd-46ef-b5ea-b363bb7d5ff2" >
 		<set-variable value="#[attributes.uriParams.id]" doc:name="Account Id" doc:id="4b3f932d-01d5-47b7-ac3c-92268c264fdd" variableName="account_id"/>
 		<flow-ref doc:name="Get Access Token - SF Auth" doc:id="dd2d996d-8175-4aa4-a6d3-68702f9dd12b" name="authentication-rest-flow" target="sfdc_token" targetValue="#[payload.access_token]"/>
 		<http:request method="GET" doc:name="Request Conta APEX" doc:id="00947830-98ba-414e-9c6b-bec15a10a714" config-ref="SFDC_Endpoint_Request_Config" path="/services/apexrest/conta">
