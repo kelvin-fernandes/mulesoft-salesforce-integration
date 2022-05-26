@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="component-account-insert-flow" doc:id="03f8c72b-10d3-4473-bd3f-a35e2b1fc415" >
+		<ee:transform doc:name="Build Body" doc:id="968dfe1e-41c6-48b4-8f64-5f945f3447e3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.requestPayload map (
+	{
+		name: $.nome
+	}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Account" doc:name="Create" doc:id="5de5c5f9-091e-49c7-be4a-517c0a75e7f5" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="9943b75d-2da2-4685-a198-adf410f27bdb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+  <flow name="component-account-query-flow" doc:id="5dc70bde-06a4-406b-a93a-3b48985f776f" >
+		<set-variable value="#[attributes.queryParams.query]" doc:name="Query" doc:id="c029c757-be0b-42a3-9c4d-a44529e21a02" variableName="query"/>
+		<salesforce:query doc:name="Query" doc:id="a7afc2f0-e9d2-4806-a6bc-e3519d43c01e" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="9dc8016f-73ed-4a85-9ca9-47ade6ffedba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+  <flow name="component-account-batch-flow" doc:id="f029e93f-0e13-4f6f-ad9f-3aeba487c294" >
+		<ee:transform doc:name="Build Body" doc:id="73a25562-7f57-4b73-9f98-e73af5199e39" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/csv lineSeparator="\r\n"
+---
+vars.requestPayload map (
+	{
+		name: $.nome
+	}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-job-bulk-api-v2 objectType="Account" doc:name="Create job bulk api v 2" doc:id="67a9008a-2c0f-404b-9cbd-4f2860fd1110" config-ref="Salesforce_Config" operation="insert" lineEnding="CRLF" externalIdFieldName="Id"/>
+		<ee:transform doc:name="Transform Message" doc:id="446f24d2-e23e-4fa9-82b8-8000f826058f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+  <flow name="component-account-get-by-id-apex-flow" doc:id="64d035ea-bd2c-4180-bb19-391856fa68f6" >
+		<set-variable value="#[attributes.uriParams.id]" doc:name="Id" doc:id="e1c34cb8-e5d6-41ba-a0eb-3993535c9541" variableName="id" />
+		<salesforce:invoke-apex-rest-method className="Conta" methodName="getAccount^/conta^HttpGet^LIST&lt;Account&gt;" doc:name="Invoke apex rest method" doc:id="7a656316-6d67-4e1d-992e-4bfa7c6c73d1" config-ref="Salesforce_Config">
+			<salesforce:request ><![CDATA[#[{
+	queryParams: {
+		id: vars.id
+	}
+}]]]></salesforce:request>
+		</salesforce:invoke-apex-rest-method>
+    <ee:transform doc:name="Transform Message" doc:id="446f24d2-e23e-4fa9-82b8-8000f826058f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.getAccountOutput map ($ - "attributes")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
